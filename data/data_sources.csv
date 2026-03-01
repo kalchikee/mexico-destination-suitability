@@ -1,0 +1,16 @@
+variable,description,unit,source,notes
+airport_dist_km,Distance from city center to nearest international airport,kilometers,OurAirports / Google Maps measurements,Measured from main tourist zone to terminal
+intl_flight_routes,Number of international direct routes,count,OAG Aviation 2024 / airport stats,Routes counted from respective airport IATA data; PDC/Tulum use CUN
+avg_temp_c,Mean annual temperature,degrees Celsius,WorldClim v2.1 / CONAGUA 1991-2020 normals,30-year climatological normals
+annual_precip_mm,Mean annual precipitation,millimeters,WorldClim v2.1 / CONAGUA 1991-2020 normals,30-year climatological normals
+homicide_rate_per100k,State-level homicide rate per 100000 residents,rate per 100k,INEGI Estadísticas de Mortalidad 2023 / SESNSP,State-level intentional homicide rate
+travel_advisory_level,US State Department travel advisory level (1-4),ordinal 1-4,US DOS Travel Advisories 2024,1=Normal Precautions 2=Increased Caution 3=Reconsider Travel 4=Do Not Travel
+avg_hotel_rate_usd,Average nightly rate for 3-star or higher hotels,USD,Statista Tourism 2024 / Booking.com market data,Mid-range category; peak season averages
+attraction_score,Composite score of tourist attractions (1-10),index 1-10,SECTUR Mexico tourism statistics 2023,Combines count and quality of UNESCO sites parks beaches ruins
+hurricane_risk,Hurricane risk level (1=low 5=high),ordinal 1-5,NOAA Atlantic and Eastern Pacific hurricane tracks 1950-2023,Based on historical track frequency and intensity within 100km
+seismic_risk,Seismic hazard level (1=low 5=high),ordinal 1-5,CENAPRED Mapa de Peligro Sísmico de México 2022,Derived from peak ground acceleration zones
+flood_risk,Flood susceptibility (1=low 5=high),ordinal 1-5,CENAPRED Atlas Nacional de Riesgos,Combines fluvial and coastal flood susceptibility
+beach_quality,Beach quality rating (1-10),index 1-10,Blue Flag certifications + TripAdvisor Travelers Choice 2024,Non-coastal destinations scored 1-2 for inland water access
+cultural_score,Cultural and heritage attraction density (1-10),index 1-10,UNESCO World Heritage / INAH registered sites density,Weighted by UNESCO status and INAH catalog
+nature_score,Ecotourism and nature attraction density (1-10),index 1-10,CONANP national protected areas + SECTUR eco-routes,Biosphere reserves national parks cenotes reefs
+avg_daily_tourist_spend_usd,Average total daily expenditure per tourist,USD,DATATUR / Banco de México tourism surveys 2023,Includes accommodation food transport and activities
