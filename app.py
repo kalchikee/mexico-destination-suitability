@@ -8,6 +8,8 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
+import folium
+from streamlit_folium import st_folium
 
 from mcda import (
     load_data, compute_suitability, CRITERIA,
@@ -128,58 +130,64 @@ with tab_map:
     st.subheader("Spatial Suitability Index")
     st.caption(
         "Bubble size and color intensity represent composite suitability score. "
-        "Hover over a marker for destination details."
+        "Click a marker for destination details."
     )
 
-    hover_text = []
+    m = folium.Map(
+        location=[21.0, -97.5],
+        zoom_start=6,
+        tiles="CartoDB positron",
+    )
+
+    # Color scale: low=red, high=green
+    def suit_color(score):
+        r = int(230 * (1 - score))
+        g = int(180 * score)
+        b = 60
+        return f"#{r:02x}{g:02x}{b:02x}"
+
     for dest, row in df_result.iterrows():
-        lines = [
-            f"<b>{dest}</b>",
-            f"Rank: #{row['rank']}",
-            f"Suitability: {row['suitability_index']:.3f}",
-            "─────────────",
-        ] + [f"{CRITERION_LABELS[k]}: {row[f'score_{k}']:.2f}" for k in CRITERIA]
-        hover_text.append("<br>".join(lines))
+        score = row["suitability_index"]
+        radius = 18 + score * 30
 
-    fig_map = go.Figure(go.Scattergeo(
-        lat=df_result["lat"],
-        lon=df_result["lon"],
-        text=df_result.index,
-        hovertext=hover_text,
-        hoverinfo="text",
-        mode="markers+text",
-        textposition="top center",
-        textfont=dict(size=12, color="black"),
-        marker=dict(
-            size=df_result["suitability_index"] * 40 + 14,
-            color=df_result["suitability_index"],
-            colorscale="RdYlGn",
-            cmin=0, cmax=1,
-            colorbar=dict(title="Suitability<br>Index", thickness=14),
-            line=dict(color="white", width=1.5),
-            opacity=0.85,
-        ),
-    ))
+        popup_html = f"""
+        <div style='font-family:sans-serif; min-width:200px'>
+            <b style='font-size:1.1em'>{dest}</b><br>
+            <hr style='margin:4px 0'>
+            <b>Rank:</b> #{row['rank']}<br>
+            <b>Suitability Index:</b> {score:.3f}<br>
+            <hr style='margin:4px 0'>
+            {''.join(
+                f"<b>{CRITERION_LABELS[k]}:</b> {row[f'score_{k}']:.2f}<br>"
+                for k in CRITERIA
+            )}
+        </div>
+        """
 
-    fig_map.update_layout(
-        geo=dict(
-            scope="north america",
-            showland=True, landcolor="#f5f5f0",
-            showocean=True, oceancolor="#d0e8f5",
-            showlakes=True, lakecolor="#d0e8f5",
-            showcountries=True, countrycolor="#bbb",
-            showsubunits=True,
-            center=dict(lat=22, lon=-97),
-            projection_scale=4.5,
-        ),
-        height=520,
-        margin=dict(l=0, r=0, t=0, b=0),
-        template="plotly_white",
-    )
+        folium.CircleMarker(
+            location=[row["lat"], row["lon"]],
+            radius=radius,
+            color=suit_color(score),
+            fill=True,
+            fill_color=suit_color(score),
+            fill_opacity=0.75,
+            popup=folium.Popup(popup_html, max_width=250),
+            tooltip=f"{dest}  |  Score: {score:.3f}  |  Rank #{row['rank']}",
+        ).add_to(m)
 
-    st.plotly_chart(fig_map, use_container_width=True)
+        folium.Marker(
+            location=[row["lat"] + 0.35, row["lon"]],
+            icon=folium.DivIcon(
+                html=f'<div style="font-size:11px;font-weight:bold;color:#222;'
+                     f'text-shadow:1px 1px 2px white">{dest}</div>',
+                icon_size=(160, 20),
+                icon_anchor=(0, 0),
+            ),
+        ).add_to(m)
 
-    # Score tiles below map
+    st_folium(m, width=None, height=520, returned_objects=[])
+
+    # Legend
     cols = st.columns(len(df_result))
     for i, (dest, row) in enumerate(df_result.iterrows()):
         with cols[i]:
